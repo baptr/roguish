@@ -1,0 +1,99 @@
+Title:
+    Roguelike Monsters
+
+Author:
+    Joe Williamson
+
+URL:
+    http://opengameart.org/content/roguelike-monsters
+
+License(s):
+    * CC-BY-SA 3.0 ( http://creativecommons.org/licenses/by-sa/3.0/legalcode )
+
+Copyright/Attribution Notice:
+    If possible, please link to my twitter (@JoeCreates) when giving credit. Thanks!
+
+File(s):
+    * roguelikecreatures.png
+
+----------------------------------------
+
+Title:
+    Roguelike Bosses
+
+Author:
+    Joe Williamson
+
+URL:
+    http://opengameart.org/content/roguelike-bosses
+
+License(s):
+    * CC-BY-SA 3.0 ( http://creativecommons.org/licenses/by-sa/3.0/legalcode )
+
+Copyright/Attribution Notice:
+    Please link to my twitter when giving credit if possible (@JoeCreates). Thanks!
+
+File(s):
+    * roguelikebosses.png
+
+----------------------------------------
+
+Title:
+    Roguelike Dungeon/World Tiles
+
+Author:
+    Joe Williamson
+
+URL:
+    http://opengameart.org/content/roguelike-dungeonworld-tiles
+
+License(s):
+    * CC-BY-SA 3.0 ( http://creativecommons.org/licenses/by-sa/3.0/legalcode )
+
+Copyright/Attribution Notice:
+    If possible, please link to my twitter (@JoeCreates) when giving credit. Thanks!
+
+File(s):
+    * rogueliketiles.png
+
+----------------------------------------
+
+Title:
+    Roguelike/RPG Icons
+
+Author:
+    Joe Williamson
+
+URL:
+    http://opengameart.org/content/roguelikerpg-icons
+
+License(s):
+    * CC-BY-SA 3.0 ( http://creativecommons.org/licenses/by-sa/3.0/legalcode )
+
+Copyright/Attribution Notice:
+    If possible, please link to my twitter (@JoeCreates) when giving credit. Thanks!
+
+File(s):
+    * rpgicons.png
+
+----------------------------------------
+
+Title:
+    Roguelike/RPG Items
+
+Author:
+    Joe Williamson
+
+URL:
+    http://opengameart.org/content/roguelikerpg-items
+
+License(s):
+    * CC-BY-SA 3.0 ( http://creativecommons.org/licenses/by-sa/3.0/legalcode )
+
+Copyright/Attribution Notice:
+    If possible, please link to my twitter (@JoeCreates) when giving credit. Thanks!
+
+File(s):
+    * roguelikeitems.png
+
+----------------------------------------
