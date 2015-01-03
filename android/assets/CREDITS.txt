@@ -97,3 +97,16 @@ File(s):
     * roguelikeitems.png
 
 ----------------------------------------
+
+Title:
+    Goblin Caves
+
+Author:
+    Daniel Harris "Hyptosis"
+
+URL:
+    http://www.lorestrome.com/pixel_archive/caves.htm
+
+License(s):
+    * CC-BY-SA 3.0 ( http://creativecommons.org/licenses/by-sa/3.0/legalcode )
+    - per http://www.newgrounds.com/art/view/hyptosis/tile-art-batch-1
