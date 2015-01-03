@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="26" height="26" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="rogueliketiles" tilewidth="16" tileheight="16">
+  <image source="rogueliketiles.png" trans="ff00ff" width="96" height="160"/>
+ </tileset>
+ <tileset firstgid="61" name="rpgicons" tilewidth="16" tileheight="16">
+  <image source="rpgicons.png" trans="ff00ff" width="96" height="48"/>
+ </tileset>
+ <tileset firstgid="79" name="roguelikeitems_1" tilewidth="16" tileheight="16">
+  <image source="roguelikeitems_1.png" trans="ff00ff" width="208" height="240"/>
+ </tileset>
+ <tileset firstgid="274" name="roguelikecreatures" tilewidth="16" tileheight="16">
+  <image source="roguelikecreatures.png" trans="ff00ff" width="128" height="144"/>
+ </tileset>
+ <layer name="base" width="26" height="26">
+  <data encoding="base64" compression="zlib">
+   eJztw8EJAAAMA6Ej+w/dMfpRcNVUVfXpAfr1BUk=
+  </data>
+ </layer>
+ <layer name="floor" width="26" height="26">
+  <data encoding="base64" compression="zlib">
+   eJztjTEKACAMAx3d7KIi/v+fthBBHJysLjk4yJQLgRDym8jOkaKKmrAz9u2OwLzo0bHfAhMUp85sWaPDdrmzU6E3rzqEEH8GjvgCdw==
+  </data>
+ </layer>
+ <layer name="Tile Layer 4" width="26" height="26">
+  <data encoding="base64" compression="zlib">
+   eJxjZIAARihmQKIZcIiRCxgZUO2htvnIdqCbT22AK7xoZdcoGPqAYwTZQ003gMySA2IeNHFhKtoBs0eIymbisoceQJJO9nACMT8aRpajFpDCY48UFe0ZBaNgFAwMAABPxQFx
+  </data>
+ </layer>
+ <layer name="wall" width="26" height="26">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2AU0Atw4MC0skceiBVoaI8kFKsCsRoSfxSMglEwCkbBKCAFAAAjkAE/
+  </data>
+ </layer>
+ <layer name="bottom wall" width="26" height="26" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2AUjIJRMArIAxwE8FCzRxKImaE0NjwKRsEooA0AAHFsATM=
+  </data>
+ </layer>
+</map>

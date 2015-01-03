@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="28" height="25" tilewidth="32" tileheight="32" backgroundcolor="#201d20">
+ <tileset firstgid="1" source="../../../../goblin_cave.tsx"/>
+ <layer name="floor" width="28" height="25">
+  <data encoding="base64" compression="zlib">
+   eJy9lcEOgzAMQzNpA203Jv6I4/gV/v86KmFhvDRrJrFIEQegL3Wc1uy8GCjPjsK4rvlc8/YHZmGNlLfk/5Eunm6vNRfKOcm5BjWybojFyZbAWn1QY9nL6LzPsrDWUlmvZd0pwQIPPQdvcPJifo+zPOyN6y8a3yUf25N7OPzA4xpRP2us9cx29FifZKFGnt/e4SA72/dcY0WzVRjQCv9zT5kZeYpZmC3l1vT3eOqpWkDjogPPbKS/N8uts8a95/pw/kURec+bGfBYE/irxce1b9hbSPRL9wd/RT5GvZN91m+294E93G1MZrWe45h3+FbnXOdT74jsOe7N+yzvv81K5hzXu03PFfVE9g6MeNx3eKO3Yy2ZXiHU08pTPb25zPD4DFK9zuCVNaAZe93j6d5/uef5+5ZzrPb+DQ1bRTI=
+  </data>
+ </layer>
+ <layer name="walls" width="28" height="25">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFowATyACxNJQtCcSydLJzIw3sopW59AAwt0sxDH73U5pOQPpB/pQmQg254UGp/sEMcIU/KA2B/AtLR8iY3DCgV5lAbwBLH7TyG3K5Si8As5OecSZDR7uoAZDLBXrHz1AFxJTXIIAtzZOaFpHTE6w8w1eOoauByQMAA4cKJw==
+  </data>
+ </layer>
+</map>
