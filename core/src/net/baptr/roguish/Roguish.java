@@ -9,11 +9,11 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -23,6 +23,7 @@ public class Roguish extends ApplicationAdapter {
   SpriteBatch batch;
   Texture img;
   TiledMap map;
+  MapLayers mapLayers;
   OrthogonalTiledMapRenderer renderer;
   Viewport viewport;
   OrthographicCamera camera;
@@ -42,10 +43,11 @@ public class Roguish extends ApplicationAdapter {
 
   @Override
   public void create () {
-    //batch = new SpriteBatch();
+    batch = new SpriteBatch();
     //img = new Texture("rogueliketiles.png");
     map = new TmxMapLoader().load("goblin_cave_test.tmx");
-    renderer = new OrthogonalTiledMapRenderer(map, 1/32f);
+    renderer = new OrthogonalTiledMapRenderer(map, 1/32f, batch);
+    mapLayers = map.getLayers();
 
     camera = new OrthographicCamera();
     camera.position.set(4, 9, 0);
@@ -84,8 +86,11 @@ public class Roguish extends ApplicationAdapter {
     camera.position.set(player.x, player.y, 0);
     camera.update();
     renderer.setView(camera);
-    renderer.render(new int[]{0});
-    player.render(camera);
-    renderer.render(new int[]{1});
+    batch.begin();
+    renderer.renderTileLayer((TiledMapTileLayer)mapLayers.get(0));
+    // TODO(baptr): Figure out if it's better to use different batches for different sprite sheets.
+    player.render(batch);
+    renderer.renderTileLayer((TiledMapTileLayer)mapLayers.get(1));
+    batch.end();
   }
 }

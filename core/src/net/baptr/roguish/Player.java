@@ -30,7 +30,6 @@ public class Player extends InputAdapter {
   Animation[]                     walkAnimations;
   Texture                         walkSheet;
   TextureRegion[][]               walkFrames;
-  SpriteBatch                     spriteBatch;
   TextureRegion                   currentFrame;
 
   float stateTime;
@@ -52,7 +51,6 @@ public class Player extends InputAdapter {
       }
       walkAnimations[i] = new Animation(0.125f, walkFrames[i]);
     }
-    spriteBatch = new SpriteBatch();
     stateTime = 0f;
     sprite = new Sprite(walkFrames[0][0]);
     sprite.setScale(1/32f);
@@ -122,7 +120,7 @@ public class Player extends InputAdapter {
     return true;
   }
 
-  public void render(Camera cam) {
+  public void render(SpriteBatch batch) {
     float d = Gdx.graphics.getDeltaTime();
     stateTime += d;
     float dx = v.x * d;
@@ -137,9 +135,6 @@ public class Player extends InputAdapter {
     sprite.setCenter(x, y);
     currentFrame = walkAnimations[dir.ordinal()].getKeyFrame(stateTime, true);
     sprite.setRegion(currentFrame);
-    spriteBatch.setProjectionMatrix(cam.combined);
-    spriteBatch.begin();
-    sprite.draw(spriteBatch);
-    spriteBatch.end();
+    sprite.draw(batch);
   }
 }
