@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -20,7 +21,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import net.baptr.roguish.Player;
 
 public class Roguish extends ApplicationAdapter {
-  SpriteBatch batch;
+  SpriteBatch batch, hudBatch;
   Texture img;
   TiledMap map;
   MapLayers mapLayers;
@@ -28,6 +29,7 @@ public class Roguish extends ApplicationAdapter {
   Viewport viewport;
   OrthographicCamera camera;
   Player player;
+  BitmapFont font;
 
   class InputController extends InputAdapter {
     @Override
@@ -44,6 +46,7 @@ public class Roguish extends ApplicationAdapter {
   @Override
   public void create () {
     batch = new SpriteBatch();
+    hudBatch = new SpriteBatch();
     //img = new Texture("rogueliketiles.png");
     map = new TmxMapLoader().load("goblin_cave_test.tmx");
     renderer = new OrthogonalTiledMapRenderer(map, 1/32f, batch);
@@ -58,6 +61,9 @@ public class Roguish extends ApplicationAdapter {
     Gdx.input.setInputProcessor(new InputMultiplexer(inputController, player));
 
     player.setColMap(colMap());
+    
+    font = new BitmapFont();
+    
   }
 
   private boolean[][] colMap() {
@@ -92,5 +98,8 @@ public class Roguish extends ApplicationAdapter {
     player.render(batch);
     renderer.renderTileLayer((TiledMapTileLayer)mapLayers.get(1));
     batch.end();
+    hudBatch.begin();
+    font.draw(hudBatch, "FPS:" + Gdx.graphics.getFramesPerSecond(), 0, 20);
+    hudBatch.end();
   }
 }

@@ -3,12 +3,12 @@ package net.baptr.roguish;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 public class Player extends InputAdapter {
@@ -25,12 +25,16 @@ public class Player extends InputAdapter {
 
   private static final float SPEED = 3;
 
-  public enum Direction { UP, LEFT, DOWN, RIGHT };
+  public enum Direction {
+    UP, LEFT, DOWN, RIGHT
+  };
 
-  Animation[]                     walkAnimations;
-  Texture                         walkSheet;
-  TextureRegion[][]               walkFrames;
-  TextureRegion                   currentFrame;
+  Animation[] walkAnimations;
+  Texture walkSheet;
+  TextureRegion[][] walkFrames;
+  TextureRegion currentFrame;
+  Rectangle bounds; // character bounding box
+  Rectangle tmpRect; // used for bounds checks
 
   float stateTime;
   Vector2 v, iv;
@@ -38,6 +42,7 @@ public class Player extends InputAdapter {
   Direction dir;
   Sprite sprite;
 
+  Rectangle mapBounds;
   boolean[][] colMap;
 
   public Player(int _x, int _y) {
@@ -47,14 +52,16 @@ public class Player extends InputAdapter {
     walkAnimations = new Animation[DIRECTIONS];
     for (int i = 0; i < DIRECTIONS; i++) {
       for (int j = 0; j < WALK_COLS; j++) {
-        walkFrames[i][j] = tmp[WALK_OFFSET*4+i][j];
+        walkFrames[i][j] = tmp[WALK_OFFSET * 4 + i][j];
       }
       walkAnimations[i] = new Animation(0.125f, walkFrames[i]);
     }
     stateTime = 0f;
     sprite = new Sprite(walkFrames[0][0]);
-    sprite.setScale(1/32f);
+    sprite.setScale(1 / 32f);
     sprite.setOriginCenter();
+    bounds = new Rectangle(0, 0, 0.9f, 1.4f); //sprite.getBoundingRectangle();
+    tmpRect = new Rectangle(0,0,1,1);
     v = new Vector2();
     iv = new Vector2();
     x = _x;
@@ -64,10 +71,11 @@ public class Player extends InputAdapter {
 
   public void setColMap(boolean[][] m) {
     colMap = m;
+    mapBounds = new Rectangle(0, 0, m[0].length, m.length);
   }
 
   public boolean keyDown(int keyCode) {
-    switch(keyCode) {
+    switch (keyCode) {
       case Keys.LEFT:
         dir = Direction.LEFT;
         iv.x -= 1;
@@ -93,7 +101,7 @@ public class Player extends InputAdapter {
   }
 
   public boolean keyUp(int keyCode) {
-    switch(keyCode) {
+    switch (keyCode) {
       case Keys.LEFT:
         iv.x += 1;
         break;
@@ -110,28 +118,84 @@ public class Player extends InputAdapter {
         return false;
     }
     if (!iv.isZero()) {
-      if (iv.x > 0) { dir = Direction.RIGHT; }
-      if (iv.x < 0) { dir = Direction.LEFT; }
-      if (iv.y > 0) { dir = Direction.UP; }
-      if (iv.y < 0) { dir = Direction.DOWN; }
+      if (iv.x > 0) {
+        dir = Direction.RIGHT;
+      }
+      if (iv.x < 0) {
+        dir = Direction.LEFT;
+      }
+      if (iv.y > 0) {
+        dir = Direction.UP;
+      }
+      if (iv.y < 0) {
+        dir = Direction.DOWN;
+      }
     }
     v.set(iv);
     v.nor().scl(SPEED);
     return true;
   }
+  
+  private float collide(float dx, float dy) {
+    bounds.setCenter(x+dx, y+dy);
+    float off = 0;
+    for (int i = (int)x-1; i < x+1; i++) {
+      for (int j = (int)y-1; j < y+1; j++) {
+        if (blocked(i,j)) {
+          tmpRect.x = i;
+          tmpRect.y = j;
+          if (tmpRect.overlaps(bounds)) {
+            if (dx > 0 && i > x) {
+              off = bounds.x + bounds.width - tmpRect.x;
+              if (off > 0) {
+                return dx;
+              }
+            } else if (dx < 0 && i < x) {
+              off = tmpRect.x + tmpRect.width - bounds.x;
+              if (off > 0) {
+                return dx;
+              }
+            }
+            if (dy > 0 && j > y) {
+              off = bounds.y + bounds.height - tmpRect.y;
+              if (off > 0) {
+                return dy;
+              }
+            } else if (dy < 0 && j < y) {
+              off = bounds.y - (tmpRect.y + tmpRect.height);
+              if (off < 0) {
+                return dy;
+              }
+            }
+          }
+        }
+      }
+    }
+    return off;
+  }
+  
+  private void updatePos(float d) {
+    float dx = v.x * d;
+    float dy = v.y * d;
+
+    dx -= collide(dx, 0);
+    dy -= collide(0, dy);
+    
+    x += dx;
+    y += dy;
+  }
+
+  private boolean blocked(float x, float y) {
+    if (y < 0 || y >= colMap.length) { return true; }
+    if (x < 0 || x >= colMap[0].length) { return true; } 
+    return colMap[(int)y][(int)x];
+  }
 
   public void render(SpriteBatch batch) {
     float d = Gdx.graphics.getDeltaTime();
+    updatePos(d);
     stateTime += d;
-    float dx = v.x * d;
-    float dy = v.y * d;
-    // TODO(baptr): Cleanup and use character bounds.
-    if (x+dx < 0) { dx = 0; }
-    if (y+dy < 0) { dy = 0; }
-    if (colMap[(int)y][(int)(x+dx)]) { dx = 0; }
-    if (colMap[(int)(y+dy)][(int)x]) { dy = 0; }
-    x += dx;
-    y += dy;
+
     sprite.setCenter(x, y);
     currentFrame = walkAnimations[dir.ordinal()].getKeyFrame(stateTime, true);
     sprite.setRegion(currentFrame);
