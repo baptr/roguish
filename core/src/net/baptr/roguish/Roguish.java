@@ -41,15 +41,17 @@ public class Roguish extends ApplicationAdapter {
       return false;
     }
   }
+
   InputController inputController;
+  private Monster monster;
 
   @Override
-  public void create () {
+  public void create() {
     batch = new SpriteBatch();
     hudBatch = new SpriteBatch();
-    //img = new Texture("rogueliketiles.png");
+    // img = new Texture("rogueliketiles.png");
     map = new TmxMapLoader().load("goblin_cave_test.tmx");
-    renderer = new OrthogonalTiledMapRenderer(map, 1/32f, batch);
+    renderer = new OrthogonalTiledMapRenderer(map, 1 / 32f, batch);
     mapLayers = map.getLayers();
 
     camera = new OrthographicCamera();
@@ -61,9 +63,11 @@ public class Roguish extends ApplicationAdapter {
     Gdx.input.setInputProcessor(new InputMultiplexer(inputController, player));
 
     player.setColMap(colMap());
-    
+
     font = new BitmapFont();
-    
+
+    monster = new Monster();
+    monster.setColMap(colMap());
   }
 
   private boolean[][] colMap() {
@@ -86,15 +90,17 @@ public class Roguish extends ApplicationAdapter {
   }
 
   @Override
-  public void render () {
-    Gdx.gl.glClearColor(32/255f, 29/255f, 32/255f, 1);
+  public void render() {
+    Gdx.gl.glClearColor(32 / 255f, 29 / 255f, 32 / 255f, 1);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     camera.position.set(player.x, player.y, 0);
     camera.update();
     renderer.setView(camera);
     batch.begin();
     renderer.renderTileLayer((TiledMapTileLayer)mapLayers.get(0));
-    // TODO(baptr): Figure out if it's better to use different batches for different sprite sheets.
+    // TODO(baptr): Figure out if it's better to use different batches for
+    // different sprite sheets.
+    monster.render(batch);
     player.render(batch);
     renderer.renderTileLayer((TiledMapTileLayer)mapLayers.get(1));
     batch.end();

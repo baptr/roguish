@@ -45,6 +45,12 @@ public class Player extends InputAdapter {
   Rectangle mapBounds;
   boolean[][] colMap;
 
+  public Player() {
+    bounds = new Rectangle(0, 0, 0.9f, 1.4f);
+    tmpRect = new Rectangle(0, 0, 1, 1);
+    v = new Vector2();
+  }
+
   public Player(int _x, int _y) {
     walkSheet = new Texture(Gdx.files.internal("lady48.png"));
     TextureRegion[][] tmp = TextureRegion.split(walkSheet, 48, 48);
@@ -60,8 +66,8 @@ public class Player extends InputAdapter {
     sprite = new Sprite(walkFrames[0][0]);
     sprite.setScale(1 / 32f);
     sprite.setOriginCenter();
-    bounds = new Rectangle(0, 0, 0.9f, 1.4f); //sprite.getBoundingRectangle();
-    tmpRect = new Rectangle(0,0,1,1);
+    bounds = new Rectangle(0, 0, 0.9f, 1.4f); // sprite.getBoundingRectangle();
+    tmpRect = new Rectangle(0, 0, 1, 1);
     v = new Vector2();
     iv = new Vector2();
     x = _x;
@@ -135,13 +141,13 @@ public class Player extends InputAdapter {
     v.nor().scl(SPEED);
     return true;
   }
-  
+
   private float collide(float dx, float dy) {
-    bounds.setCenter(x+dx, y+dy);
+    bounds.setCenter(x + dx, y + dy);
     float off = 0;
-    for (int i = (int)x-1; i < x+1; i++) {
-      for (int j = (int)y-1; j < y+1; j++) {
-        if (blocked(i,j)) {
+    for (int i = (int)x - 1; i < x + 1; i++) {
+      for (int j = (int)y - 1; j < y + 1; j++) {
+        if (blocked(i, j)) {
           tmpRect.x = i;
           tmpRect.y = j;
           if (tmpRect.overlaps(bounds)) {
@@ -173,21 +179,25 @@ public class Player extends InputAdapter {
     }
     return off;
   }
-  
-  private void updatePos(float d) {
+
+  protected void updatePos(float d) {
     float dx = v.x * d;
     float dy = v.y * d;
 
     dx -= collide(dx, 0);
     dy -= collide(0, dy);
-    
+
     x += dx;
     y += dy;
   }
 
-  private boolean blocked(float x, float y) {
-    if (y < 0 || y >= colMap.length) { return true; }
-    if (x < 0 || x >= colMap[0].length) { return true; } 
+  protected boolean blocked(float x, float y) {
+    if (y < 0 || y >= colMap.length) {
+      return true;
+    }
+    if (x < 0 || x >= colMap[0].length) {
+      return true;
+    }
     return colMap[(int)y][(int)x];
   }
 
