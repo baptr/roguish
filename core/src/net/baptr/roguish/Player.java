@@ -209,7 +209,14 @@ public class Player extends InputAdapter {
     stateTime += d;
 
     sprite.setCenter(x, y);
-    currentFrame = walkAnimations[dir.ordinal()].getKeyFrame(stateTime, true);
+    if(v.x == 0 && v.y == 0)
+    {
+    	currentFrame = walkAnimations[dir.ordinal()].getKeyFrame(0, false);
+    } 
+    else
+    {
+    	currentFrame = walkAnimations[dir.ordinal()].getKeyFrame(stateTime, true);
+    }
     sprite.setRegion(currentFrame);
     sprite.draw(batch);
   }
