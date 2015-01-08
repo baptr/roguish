@@ -3,10 +3,20 @@
  <tileset firstgid="1" source="../../../../goblin_cave.tsx"/>
  <layer name="floor" width="28" height="25">
   <data encoding="base64" compression="zlib">
-   eJy9lcEOgzAMQzNpA203Jv6I4/gV/v86KmFhvDRrJrFIEQegL3Wc1uy8GCjPjsK4rvlc8/YHZmGNlLfk/5Eunm6vNRfKOcm5BjWybojFyZbAWn1QY9nL6LzPsrDWUlmvZd0pwQIPPQdvcPJifo+zPOyN6y8a3yUf25N7OPzA4xpRP2us9cx29FifZKFGnt/e4SA72/dcY0WzVRjQCv9zT5kZeYpZmC3l1vT3eOqpWkDjogPPbKS/N8uts8a95/pw/kURec+bGfBYE/irxce1b9hbSPRL9wd/RT5GvZN91m+294E93G1MZrWe45h3+FbnXOdT74jsOe7N+yzvv81K5hzXu03PFfVE9g6MeNx3eKO3Yy2ZXiHU08pTPb25zPD4DFK9zuCVNaAZe93j6d5/uef5+5ZzrPb+DQ1bRTI=
+   eJzdlc0KwkAMhFfQFj1K38ijfZW+/9UGOjgO2W2yUg8WguC2+ZLJz5byP895tftqlx+xJrKjmc/VFrI5+b3FW4vR021xLMoxX2MjRstlcs6zLPhaKv4ifh8JFnioeasGp8r/WR5y4/hN46vYbfvVGmd53jesscbDGlhc4xc87h3lwIbyzrmHZQxohe+5pszcqzH7rM2Wp7/Hi/QUWBa36aAzW9Pfm+XorHHtOT7sv9bT03vQRvWP+Gq9g96CQTfND/0V6a0aD3XgHh42JrOiexzzjr7VOdf51NnM7nFv3mc535uVzB7Xu0110Z7ovQM9HtcdvTGWz1gytYryND9vLjM83kGq1xE88wHNuNc9nubec8/z+5E9Vjt/AdzNQc8=
   </data>
  </layer>
- <layer name="walls" width="28" height="25">
+ <layer name="north" width="28" height="25">
+  <data encoding="base64" compression="zlib">
+   eJzlk1EKACAIQ73C7n/ZfkMsAnUyeiAVRLMHmvWBrbrxGYzMDDcvld5Y/n8GQZnNu89mv/af+SfcWgHTO9zen1mozfhpZk53s1mV70YzruZfAWWvU72r+mKxADtvA2Q=
+  </data>
+ </layer>
+ <layer name="player" width="28" height="25">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2AUjIJRMApGwSgYXIBpmNs3CugLABNQAAU=
+  </data>
+ </layer>
+ <layer name="south" width="28" height="25">
   <data encoding="base64" compression="zlib">
    eJxjYBgFowATyACxNJQtCcSydLJzIw3sopW59AAwt0sxDH73U5pOQPpB/pQmQg254UGp/sEMcIU/KA2B/AtLR8iY3DCgV5lAbwBLH7TyG3K5Si8As5OecSZDR7uoAZDLBXrHz1AFxJTXIIAtzZOaFpHTE6w8w1eOoauByQMAA4cKJw==
   </data>

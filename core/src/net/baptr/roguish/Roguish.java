@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -38,12 +40,18 @@ public class Roguish extends ApplicationAdapter {
         Gdx.app.exit();
         return true;
       }
+      if (keyCode == Keys.F1) {
+        debugBounds = !debugBounds;
+        return true;
+      }
       return false;
     }
   }
 
   InputController inputController;
   private Monster monster;
+  private ShapeRenderer sh;
+  private boolean debugBounds;
 
   @Override
   public void create() {
@@ -68,6 +76,8 @@ public class Roguish extends ApplicationAdapter {
 
     monster = new Monster();
     monster.setColMap(colMap());
+
+    sh = new ShapeRenderer();
   }
 
   private boolean[][] colMap() {
@@ -98,14 +108,22 @@ public class Roguish extends ApplicationAdapter {
     renderer.setView(camera);
     batch.begin();
     renderer.renderTileLayer((TiledMapTileLayer)mapLayers.get(0));
+    renderer.renderTileLayer((TiledMapTileLayer)mapLayers.get(1));
     // TODO(baptr): Figure out if it's better to use different batches for
     // different sprite sheets.
     monster.render(batch);
     player.render(batch);
-    renderer.renderTileLayer((TiledMapTileLayer)mapLayers.get(1));
+    renderer.renderTileLayer((TiledMapTileLayer)mapLayers.get(3));
     batch.end();
     hudBatch.begin();
     font.draw(hudBatch, "FPS:" + Gdx.graphics.getFramesPerSecond(), 0, 20);
     hudBatch.end();
+
+    if (debugBounds) {
+      sh.setProjectionMatrix(camera.combined);
+      sh.begin(ShapeType.Line);
+      player.debugBounds(sh);
+      sh.end();
+    }
   }
 }

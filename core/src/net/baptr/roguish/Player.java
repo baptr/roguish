@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
@@ -29,6 +31,7 @@ public class Player extends InputAdapter {
     UP, LEFT, DOWN, RIGHT
   };
 
+  // TODO(baptr): Factor most of this out to Entity.
   Animation[] walkAnimations;
   Texture walkSheet;
   TextureRegion[][] walkFrames;
@@ -46,12 +49,13 @@ public class Player extends InputAdapter {
   boolean[][] colMap;
 
   public Player() {
-    bounds = new Rectangle(0, 0, 0.9f, 1.4f);
+    bounds = new Rectangle(0, 0, 0.9f, 0.7f);
     tmpRect = new Rectangle(0, 0, 1, 1);
     v = new Vector2();
   }
 
   public Player(int _x, int _y) {
+    this();
     walkSheet = new Texture(Gdx.files.internal("lady48.png"));
     TextureRegion[][] tmp = TextureRegion.split(walkSheet, 48, 48);
     walkFrames = new TextureRegion[DIRECTIONS][WALK_COLS];
@@ -66,13 +70,11 @@ public class Player extends InputAdapter {
     sprite = new Sprite(walkFrames[0][0]);
     sprite.setScale(1 / 32f);
     sprite.setOriginCenter();
-    bounds = new Rectangle(0, 0, 0.9f, 1.4f); // sprite.getBoundingRectangle();
-    tmpRect = new Rectangle(0, 0, 1, 1);
-    v = new Vector2();
     iv = new Vector2();
     x = _x;
     y = _y;
     dir = Direction.DOWN;
+
   }
 
   public void setColMap(boolean[][] m) {
@@ -143,7 +145,7 @@ public class Player extends InputAdapter {
   }
 
   private float collide(float dx, float dy) {
-    bounds.setCenter(x + dx, y + dy);
+    bounds.setCenter(x + dx, y + dy - 0.35f);
     float off = 0;
     for (int i = (int)x - 1; i < x + 1; i++) {
       for (int j = (int)y - 1; j < y + 1; j++) {
@@ -210,5 +212,9 @@ public class Player extends InputAdapter {
     currentFrame = walkAnimations[dir.ordinal()].getKeyFrame(stateTime, true);
     sprite.setRegion(currentFrame);
     sprite.draw(batch);
+  }
+
+  public void debugBounds(ShapeRenderer sh) {
+    sh.rect(bounds.x, bounds.y, bounds.width, bounds.height);
   }
 }
