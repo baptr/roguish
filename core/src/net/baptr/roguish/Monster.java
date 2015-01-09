@@ -22,7 +22,7 @@ public class Monster extends Player {
   Vector2 vel;
   int dir;
 
-  public Monster() {
+  public Monster(Roguish game) {
     Texture walkSheet = new Texture(Gdx.files.internal("skeleton.png"));
     TextureRegion[][] tmp = TextureRegion.split(walkSheet, 48, 48);
     TextureRegion[][] walkFrames = new TextureRegion[DIRECTIONS][WALK_COLS];

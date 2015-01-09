@@ -17,6 +17,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -32,6 +33,7 @@ public class Roguish extends ApplicationAdapter {
   OrthographicCamera camera;
   Player player;
   BitmapFont font;
+  public Vector2 screenCenter;
 
   class InputController extends InputAdapter {
     @Override
@@ -62,19 +64,23 @@ public class Roguish extends ApplicationAdapter {
     renderer = new OrthogonalTiledMapRenderer(map, 1 / 32f, batch);
     mapLayers = map.getLayers();
 
+    screenCenter =
+        new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+
     camera = new OrthographicCamera();
     camera.position.set(4, 9, 0);
     viewport = new FitViewport(12, 10, camera);
 
     inputController = new InputController();
-    player = new Player(2, 8);
-    Gdx.input.setInputProcessor(new InputMultiplexer(inputController, player));
+    player = new Player(2, 8, this);
+    Gdx.input.setInputProcessor(new InputMultiplexer(inputController, player,
+        new MouseHandler()));
 
     player.setColMap(colMap());
 
     font = new BitmapFont();
 
-    monster = new Monster();
+    monster = new Monster(this);
     monster.setColMap(colMap());
 
     sh = new ShapeRenderer();
@@ -96,6 +102,8 @@ public class Roguish extends ApplicationAdapter {
 
   @Override
   public void resize(int w, int h) {
+    screenCenter.set(new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics
+        .getHeight() / 2));
     viewport.update(w, h);
   }
 
