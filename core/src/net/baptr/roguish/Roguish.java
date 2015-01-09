@@ -55,7 +55,6 @@ public class Roguish extends ApplicationAdapter {
   public void create() {
     batch = new SpriteBatch();
     hudBatch = new SpriteBatch();
-    // img = new Texture("rogueliketiles.png");
     map = new TmxMapLoader().load("goblin_cave_test.tmx");
     renderer = new OrthogonalTiledMapRenderer(map, 1 / 32f, batch);
     mapLayers = map.getLayers();
@@ -69,13 +68,10 @@ public class Roguish extends ApplicationAdapter {
     Gdx.input.setInputProcessor(new InputMultiplexer(inputController,
         new PlayerInputHandler()));
 
-    player.setColMap(colMap());
+    monster = new Monster();
+    Entity.colMap = colMap();
 
     font = new BitmapFont();
-
-    monster = new Monster(this);
-    monster.setColMap(colMap());
-
     sh = new ShapeRenderer();
   }
 
@@ -104,7 +100,7 @@ public class Roguish extends ApplicationAdapter {
   public void render() {
     Gdx.gl.glClearColor(32 / 255f, 29 / 255f, 32 / 255f, 1);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-    camera.position.set(player.x, player.y, 0);
+    camera.position.set(player.pos.x, player.pos.y, 0);
     camera.update();
     renderer.setView(camera);
     batch.begin();
