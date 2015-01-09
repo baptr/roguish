@@ -8,8 +8,8 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.maps.MapLayers;
@@ -17,11 +17,8 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-
-import net.baptr.roguish.Player;
 
 public class Roguish extends ApplicationAdapter {
   SpriteBatch batch, hudBatch;
@@ -33,7 +30,6 @@ public class Roguish extends ApplicationAdapter {
   OrthographicCamera camera;
   Player player;
   BitmapFont font;
-  public Vector2 screenCenter;
 
   class InputController extends InputAdapter {
     @Override
@@ -64,17 +60,14 @@ public class Roguish extends ApplicationAdapter {
     renderer = new OrthogonalTiledMapRenderer(map, 1 / 32f, batch);
     mapLayers = map.getLayers();
 
-    screenCenter =
-        new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
-
     camera = new OrthographicCamera();
     camera.position.set(4, 9, 0);
     viewport = new FitViewport(12, 10, camera);
 
     inputController = new InputController();
-    player = new Player(2, 8, this);
-    Gdx.input.setInputProcessor(new InputMultiplexer(inputController, player,
-        new MouseHandler()));
+    player = new Player(2, 8);
+    Gdx.input.setInputProcessor(new InputMultiplexer(inputController,
+        new PlayerInputHandler()));
 
     player.setColMap(colMap());
 
@@ -102,8 +95,8 @@ public class Roguish extends ApplicationAdapter {
 
   @Override
   public void resize(int w, int h) {
-    screenCenter.set(new Vector2(Gdx.graphics.getWidth() / 2, Gdx.graphics
-        .getHeight() / 2));
+    PlayerInputHandler.centerX = Gdx.graphics.getWidth() / 2;
+    PlayerInputHandler.centerY = Gdx.graphics.getHeight() / 2;
     viewport.update(w, h);
   }
 
