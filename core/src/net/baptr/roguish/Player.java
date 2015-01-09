@@ -5,11 +5,11 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
@@ -47,15 +47,29 @@ public class Player extends InputAdapter {
 
   Rectangle mapBounds;
   boolean[][] colMap;
+  
+  // TODO(rjr): I put mouse handling in this random class, but not 100% sure about it.
+  // might want to put ALL handling here, including buttons. Also left all the static
+  // crap from my platformer because I have it a static thing. woo.
+  MouseHandler mouseHandler = new MouseHandler();
+  boolean usingMouse = false;
+  Roguish game;
 
-  public Player() {
+  public Player(){
+	    bounds = new Rectangle(0, 0, 0.9f, 0.7f);
+	    tmpRect = new Rectangle(0, 0, 1, 1);
+	    v = new Vector2();
+  };
+  
+  public Player(Roguish game) {
     bounds = new Rectangle(0, 0, 0.9f, 0.7f);
     tmpRect = new Rectangle(0, 0, 1, 1);
     v = new Vector2();
+    this.game = game;
   }
 
-  public Player(int _x, int _y) {
-    this();
+  public Player(int _x, int _y, Roguish game) {
+    this(game);
     walkSheet = new Texture(Gdx.files.internal("lady48.png"));
     TextureRegion[][] tmp = TextureRegion.split(walkSheet, 48, 48);
     walkFrames = new TextureRegion[DIRECTIONS][WALK_COLS];
@@ -83,6 +97,7 @@ public class Player extends InputAdapter {
   }
 
   public boolean keyDown(int keyCode) {
+	usingMouse = false;
     switch (keyCode) {
       case Keys.LEFT:
         dir = Direction.LEFT;
@@ -142,6 +157,93 @@ public class Player extends InputAdapter {
     v.set(iv);
     v.nor().scl(SPEED);
     return true;
+  }
+  
+  public void updateVel()
+  {
+	  if(usingMouse && mouseHandler.isDown())
+	  {
+		  
+		  //System.out.println(mouseHandler.x + "," + mouseHandler.y);
+		  double angle =  MathUtils.atan2(mouseHandler.x - game.screenCenter.x, game.screenCenter.y - mouseHandler.y);
+		  if(angle >= -0.419 && angle < 0.419){
+			  // UP
+			  dir = Direction.UP;
+			  iv.y = 1;
+		  }
+		  if(angle >=  0.419 && angle < 1.325){
+			  // UP-RIGHT
+			  dir = Direction.RIGHT;
+			  iv.x = 1;
+			  iv.y = 1;
+		  }
+		  if(angle >= 1.325 && angle < 1.815){
+			  // RIGHT
+			  dir = Direction.RIGHT;
+			  iv.x = 1;
+		  }
+		  if(angle >= 1.815 && angle < 2.72){
+			  // DOWN-RIGHT
+			  dir = Direction.RIGHT;
+			  iv.x = 1;
+			  iv.y = -1;
+		  }
+		  if(angle >= 2.72 || angle < -2.72){
+			  // DOWN
+			  dir = Direction.DOWN;
+			  iv.y = -1;
+		  }
+		  if(angle >= -2.72 && angle < -1.815){
+			  // DOWN-LEFT
+			  dir = Direction.LEFT;
+			  iv.x = -1;
+			  iv.y = -1;
+		  }
+		  if(angle >= -1.815 && angle < -1.325){
+			  // LEFT
+			  dir = Direction.LEFT;
+			  iv.x = -1;
+		  }
+		  if(angle >= -1.325 && angle < -0.419){
+			  // UP-LEFT
+			  dir = Direction.LEFT;
+			  iv.x = -1;
+			  iv.y = 1;
+		  }
+	  }
+	  
+	  if(usingMouse && !mouseHandler.isDown())
+	  {
+		  iv.set(Vector2.Zero);
+	  }
+	  
+  v.set(iv);
+  v.nor().scl(SPEED);
+  }
+  
+  public boolean touchDown(int screenX, int screenY, int pointer, int button)
+  {
+	  usingMouse = true;
+	  mouseHandler.x = screenX;
+	  mouseHandler.y = screenY;
+	  mouseHandler.down = true;
+	  return true;
+  }
+  
+  public boolean touchUp(int screenX, int screenY, int pointer, int button)
+  {
+	  mouseHandler.x = screenX;
+	  mouseHandler.y = screenY;
+	  mouseHandler.down = false;
+	  return true;
+  }
+  
+  public boolean touchDragged(int screenX, int screenY, int pointer)
+  {
+	  mouseHandler.x = screenX;
+	  mouseHandler.y = screenY;
+	  mouseHandler.down = true;
+	  return true;
   }
 
   private float collide(float dx, float dy) {
@@ -205,12 +307,15 @@ public class Player extends InputAdapter {
 
   public void render(SpriteBatch batch) {
     float d = Gdx.graphics.getDeltaTime();
+    mouseHandler.update();
+    updateVel();
     updatePos(d);
     stateTime += d;
 
     sprite.setCenter(x, y);
-    if(v.x == 0 && v.y == 0)
+    if(v.isZero())
     {
+    	stateTime = 0;
     	currentFrame = walkAnimations[dir.ordinal()].getKeyFrame(0, false);
     } 
     else
