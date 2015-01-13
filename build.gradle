@@ -117,6 +117,7 @@ project(":core") {
         compile "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
         compile "com.badlogicgames.box2dlights:box2dlights:$box2DLightsVersion"
         compile "com.badlogicgames.ashley:ashley:$ashleyVersion"
+        compile "com.esotericsoftware:kryonet:2.22.0-RC1"
     }
 }
 

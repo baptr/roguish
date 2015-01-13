@@ -40,15 +40,17 @@ public class Entity {
   Vector2 pos;
   Direction dir;
   Sprite sprite;
+  int id;
 
   static boolean[][] colMap;
 
-  public Entity() {
+  public Entity(int id) {
     bounds = new Rectangle(0, 0, 0.9f, 0.7f);
     tmpRect = new Rectangle(0, 0, 1, 1);
     vel = new Vector2();
     pos = new Vector2();
     dir = Direction.DOWN;
+    this.id = id;
   };
 
   protected void loadSprite(String filename) {
@@ -138,15 +140,16 @@ public class Entity {
     return colMap[(int)y][(int)x];
   }
 
-  public void render(SpriteBatch batch) {
-    float d = Gdx.graphics.getDeltaTime();
-    updatePos(d);
-
+  public void update(float delta) {
+    updatePos(delta);
     if (vel.isZero()) {
       stateTime = 0;
     } else {
-      stateTime += d;
+      stateTime += delta;
     }
+  }
+
+  public void render(SpriteBatch batch) {
     currentFrame = walkAnimations[dir.ordinal()].getKeyFrame(stateTime, true);
 
     sprite.setCenter(pos.x, pos.y);

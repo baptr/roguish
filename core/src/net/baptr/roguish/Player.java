@@ -1,24 +1,23 @@
 package net.baptr.roguish;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
 public class Player extends Entity {
-  private static final float SPEED = 3;
+  protected static final float SPEED = 3;
 
-  public Player(int x, int y) {
-    super();
+  public Player(int id, int x, int y) {
+    super(id);
     loadSprite("lady48.png");
     pos.set(x, y);
   }
 
-  private void updateVel() {
+  protected void updateVel() {
+    PlayerInputHandler.update();
     vel.set(PlayerInputHandler.iv);
     vel.nor().scl(SPEED);
   }
 
-  public void render(SpriteBatch batch) {
-    PlayerInputHandler.update();
+  @Override
+  public void update(float delta) {
     updateVel();
-    super.render(batch);
+    super.update(delta);
   }
 }

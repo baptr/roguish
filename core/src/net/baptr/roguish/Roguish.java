@@ -1,10 +1,15 @@
 package net.baptr.roguish;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -30,6 +35,8 @@ public class Roguish extends ApplicationAdapter {
   OrthographicCamera camera;
   Player player;
   BitmapFont font;
+  NetworkServer server;
+  NetworkClient client;
 
   class InputController extends InputAdapter {
     @Override
@@ -42,6 +49,21 @@ public class Roguish extends ApplicationAdapter {
         debugBounds = !debugBounds;
         return true;
       }
+      if (keyCode == Keys.S) {
+        try {
+          server = new NetworkServer();
+          System.out.println("Server started");
+        } catch (IOException e) {
+          System.out.println("Failed to start server" + e);
+        }
+        return true;
+      }
+      if (keyCode == Keys.C) {
+        client = new NetworkClient();
+        client.connect("me");
+        System.out.println("Connected");
+        return true;
+      }
       return false;
     }
   }
@@ -50,6 +72,13 @@ public class Roguish extends ApplicationAdapter {
   private Monster monster;
   private ShapeRenderer sh;
   private boolean debugBounds;
+
+  public int simTick;
+  public int viewTick;
+  public int maxEntityId;
+
+  public static final float tickRate = 0.050f; // 50ms
+  public static final int simOffset = 2; // viewTick + simOffset = simTick
 
   @Override
   public void create() {
@@ -64,15 +93,20 @@ public class Roguish extends ApplicationAdapter {
     viewport = new FitViewport(12, 10, camera);
 
     inputController = new InputController();
-    player = new Player(2, 8);
     Gdx.input.setInputProcessor(new InputMultiplexer(inputController,
         new PlayerInputHandler()));
 
-    monster = new Monster();
+    monster = new Monster(nextEntityId());
     Entity.colMap = colMap();
 
     font = new BitmapFont();
     sh = new ShapeRenderer();
+
+    addEntity(monster);
+  }
+
+  protected void addEntity(Entity e) {
+    entities.put(e.id, e);
   }
 
   private boolean[][] colMap() {
@@ -96,22 +130,55 @@ public class Roguish extends ApplicationAdapter {
     viewport.update(w, h);
   }
 
+  private void update(float delta) {
+    // TODO(baptr): Do local update prediction.
+    if (client != null) {
+      client.update(this, delta);
+    }
+    if (server != null) {
+      server.update(this, delta);
+    }
+  }
+
+  public void updateEntities(float delta) {
+    for (Entity e : entities.values()) {
+      e.update(delta);
+    }
+  }
+
+  Color BGColor = new Color(32 / 255f, 29 / 255f, 32 / 255f, 1);
+
+  public Map<Integer, RemotePlayer> players =
+      new HashMap<Integer, RemotePlayer>();
+  public Map<Integer, Entity> entities = new HashMap<Integer, Entity>();
+
   @Override
   public void render() {
-    Gdx.gl.glClearColor(32 / 255f, 29 / 255f, 32 / 255f, 1);
+    float delta = Gdx.graphics.getDeltaTime();
+    update(delta);
+
+    Gdx.gl.glClearColor(BGColor.r, BGColor.g, BGColor.b, BGColor.a);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-    camera.position.set(player.pos.x, player.pos.y, 0);
+    if (player != null) {
+      camera.position.set(player.pos, 0);
+    } else {
+      camera.position.set(2, 8, 0);
+    }
     camera.update();
     renderer.setView(camera);
+
     batch.begin();
-    renderer.renderTileLayer((TiledMapTileLayer)mapLayers.get(0));
-    renderer.renderTileLayer((TiledMapTileLayer)mapLayers.get(1));
-    // TODO(baptr): Figure out if it's better to use different batches for
-    // different sprite sheets.
-    monster.render(batch);
-    player.render(batch);
-    renderer.renderTileLayer((TiledMapTileLayer)mapLayers.get(3));
+    renderer.renderTileLayer((TiledMapTileLayer)mapLayers.get(0)); // Floor
+    renderer.renderTileLayer((TiledMapTileLayer)mapLayers.get(1)); // North
+
+    // TODO(baptr): y-sort characters for rendering.
+    for (Entity e : entities.values()) {
+      e.render(batch);
+    }
+
+    renderer.renderTileLayer((TiledMapTileLayer)mapLayers.get(3)); // South
     batch.end();
+
     hudBatch.begin();
     font.draw(hudBatch, "FPS:" + Gdx.graphics.getFramesPerSecond(), 0, 20);
     hudBatch.end();
@@ -122,5 +189,21 @@ public class Roguish extends ApplicationAdapter {
       player.debugBounds(sh);
       sh.end();
     }
+  }
+
+  private int nextEntityId() { // TOOD(baptr): Synchronized
+    return maxEntityId++;
+  }
+
+  public int addPlayer(String name) {
+    return addPlayer(name, nextEntityId());
+  }
+
+  public int addPlayer(String name, int id) {
+    RemotePlayer rp = new RemotePlayer(id, 2, 8);
+    players.put(rp.id, rp);
+    entities.put(rp.id, rp);
+    System.out.printf("Welcome %s!\n", name);
+    return id;
   }
 }
