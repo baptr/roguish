@@ -1,6 +1,5 @@
 package net.baptr.roguish;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 
 public class Monster extends Entity {
@@ -32,8 +31,9 @@ public class Monster extends Entity {
     }
   }
 
-  public void render(SpriteBatch batch) {
+  @Override
+  public void update(float delta) {
     updateVel();
-    super.render(batch);
+    super.update(delta);
   }
 }

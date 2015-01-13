@@ -138,15 +138,16 @@ public class Entity {
     return colMap[(int)y][(int)x];
   }
 
-  public void render(SpriteBatch batch) {
-    float d = Gdx.graphics.getDeltaTime();
-    updatePos(d);
-
+  public void update(float delta) {
+    updatePos(delta);
     if (vel.isZero()) {
       stateTime = 0;
     } else {
-      stateTime += d;
+      stateTime += delta;
     }
+  }
+
+  public void render(SpriteBatch batch) {
     currentFrame = walkAnimations[dir.ordinal()].getKeyFrame(stateTime, true);
 
     sprite.setCenter(pos.x, pos.y);

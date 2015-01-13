@@ -1,7 +1,5 @@
 package net.baptr.roguish;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
 public class Player extends Entity {
   private static final float SPEED = 3;
 
@@ -16,9 +14,10 @@ public class Player extends Entity {
     vel.nor().scl(SPEED);
   }
 
-  public void render(SpriteBatch batch) {
+  @Override
+  public void update(float delta) {
     PlayerInputHandler.update();
     updateVel();
-    super.render(batch);
+    super.update(delta);
   }
 }
