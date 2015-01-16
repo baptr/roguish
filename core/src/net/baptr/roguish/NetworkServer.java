@@ -9,12 +9,14 @@ import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 
 public class NetworkServer extends Listener {
+  private static final boolean debug = false;
+
   Server server;
-  int maxConnId = 0;
   List<PlayerConnection> conns = new ArrayList<PlayerConnection>();
   // TODO(baptr): Queue?
   List<Network.InputVector> ivs = new ArrayList<Network.InputVector>();
-  List<PlayerConnection> pendingSyncs = new ArrayList<PlayerConnection>();
+  List<PlayerConnection> pendingJoins = new ArrayList<PlayerConnection>();
+  private float simAccum;
 
   public NetworkServer() throws IOException {
     server = new Server() {
@@ -26,7 +28,7 @@ public class NetworkServer extends Listener {
     Network.register(server);
 
     server.addListener(this);
-    server.bind(Network.PORT);
+    server.bind(Network.PORT, Network.PORT);
     server.start();
   }
 
@@ -47,23 +49,18 @@ public class NetworkServer extends Listener {
       pc.version = j.version;
       pc.player = new Network.Player();
       pc.player.name = j.user;
-      pc.player.id = maxConnId++;
+      pc.player.id = -1;
       System.out.println("Connected: " + pc.player.name);
 
-      // TODO(baptr): lock?
       conns.add(pc);
-      // Announce join to other connected players.
-      for (PlayerConnection oc : conns) {
-        oc.sendTCP(pc.player);
-      }
 
       // Queue a full sync.
-      pendingSyncs.add(pc);
+      pendingJoins.add(pc);
     }
 
     if (o instanceof Network.InputVector) {
       Network.InputVector iv = (Network.InputVector)o;
-      System.out.println("Updated (" + iv.x + ", " + iv.y + ")");
+      // System.out.println("Updated (" + iv.x + ", " + iv.y + ")");
       if (iv.playerId != pc.player.id) {
         System.out.printf("%s is a liar! (%d != %d) in InputVector\n",
             pc.player.name, iv.playerId, pc.player.id);
@@ -71,7 +68,9 @@ public class NetworkServer extends Listener {
       }
       iv.playerId = pc.player.id;
       // Queue use of update.
-      ivs.add(iv);
+      synchronized (ivs) {
+        ivs.add(iv);
+      }
     }
   }
 
@@ -89,10 +88,84 @@ public class NetworkServer extends Listener {
     }
   }
 
+  private void syncState(Roguish game) {
+    // TODO(baptr): Deltas, short circuiting, object caching.
+    Network.FullSync sync = new Network.FullSync();
+    sync.tick = game.simTick;
+    List<Network.Player> tmpPlayers = new ArrayList<Network.Player>();
+    for (PlayerConnection pc : conns) {
+      tmpPlayers.add(pc.player);
+    }
+    sync.players = tmpPlayers.toArray(new Network.Player[0]);
+    List<Network.Entity> tmpEntities = new ArrayList<Network.Entity>();
+    for (Entity e : game.entities.values()) {
+      Network.Entity ne = new Network.Entity();
+      ne.id = e.id;
+      ne.tick = game.simTick;
+      ne.vx = e.vel.x;
+      ne.vy = e.vel.y;
+      ne.x = e.pos.x;
+      ne.y = e.pos.y;
+
+      tmpEntities.add(ne);
+    }
+    sync.entities = tmpEntities.toArray(new Network.Entity[0]);
+    server.sendToAllTCP(sync);
+  }
+
   public void update(Roguish game, float delta) {
+    // Add any new players
+    for (PlayerConnection pc : pendingJoins) {
+      pc.player.id = game.addPlayer(pc.player.name);
+
+      // Announce join to all connected players.
+      server.sendToAllTCP(pc.player);
+    }
+    pendingJoins.clear();
+
     // Process IVs
+    // TODO(baptr): Lock
+    synchronized (ivs) {
+      for (Network.InputVector iv : ivs) {
+        if (debug) {
+          System.out.printf("Applying %d's IV for tick %d\n", iv.playerId,
+              iv.tick);
+        }
+        // TODO(baptr): Validate tick.
+        RemotePlayer p = game.players.get(iv.playerId);
+        if (p != null) {
+          p.iv.set(iv.x, iv.y);
+        } else {
+          System.out.printf("No such player %d!\n", iv.playerId);
+        }
+      }
+      ivs.clear();
+    }
+
     // Update simTick if necessary
-    // Update positions/run AI
-    // Send syncs if necessary
+    if (delta > Roguish.tickRate) {
+      System.out.println("Lost ticks!");
+    }
+    simAccum += delta;
+    float simNow = 0;
+    while (simAccum >= Roguish.tickRate) {
+      game.simTick++;
+      simNow += Roguish.tickRate;
+      simAccum -= Roguish.tickRate;
+    }
+
+    // Sim tick
+    if (simNow > 0) {
+      if (debug) {
+        System.out.printf("Simulating tick %d + %f @ %f\n", game.simTick,
+            simAccum, simNow);
+      }
+      // Update positions/run AI
+      /* Currently game.update calls server.update. Need to break that loop */
+      game.updateRemote(simNow);
+
+      // Send syncs if necessary
+      syncState(game);
+    }
   }
 }

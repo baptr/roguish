@@ -1,6 +1,8 @@
 package net.baptr.roguish;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -73,8 +75,9 @@ public class Roguish extends ApplicationAdapter {
 
   public int simTick;
   public int viewTick;
+  public int maxEntityId;
 
-  public static final int tickRate = 50; // In ms
+  public static final float tickRate = 0.050f; // 50ms
   public static final int simOffset = 2; // viewTick + simOffset = simTick
 
   @Override
@@ -90,15 +93,22 @@ public class Roguish extends ApplicationAdapter {
     viewport = new FitViewport(12, 10, camera);
 
     inputController = new InputController();
-    player = new Player(2, 8);
+    player = new Player(nextEntityId(), 2, 8);
     Gdx.input.setInputProcessor(new InputMultiplexer(inputController,
         new PlayerInputHandler()));
 
-    monster = new Monster();
+    monster = new Monster(nextEntityId());
     Entity.colMap = colMap();
 
     font = new BitmapFont();
     sh = new ShapeRenderer();
+
+    addEntity(player);
+    addEntity(monster);
+  }
+
+  private void addEntity(Entity e) {
+    entities.put(e.id, e);
   }
 
   private boolean[][] colMap() {
@@ -133,7 +143,17 @@ public class Roguish extends ApplicationAdapter {
     }
   }
 
+  public void updateRemote(float delta) {
+    for (RemotePlayer p : players.values()) {
+      p.update(delta);
+    }
+  }
+
   Color BGColor = new Color(32 / 255f, 29 / 255f, 32 / 255f, 1);
+
+  public Map<Integer, RemotePlayer> players =
+      new HashMap<Integer, RemotePlayer>();
+  public Map<Integer, Entity> entities = new HashMap<Integer, Entity>();
 
   @Override
   public void render() {
@@ -147,14 +167,15 @@ public class Roguish extends ApplicationAdapter {
     renderer.setView(camera);
 
     batch.begin();
-    renderer.renderTileLayer((TiledMapTileLayer)mapLayers.get(0));
-    renderer.renderTileLayer((TiledMapTileLayer)mapLayers.get(1));
-    // TODO(baptr): Figure out if it's better to use different batches for
-    // different sprite sheets.
+    renderer.renderTileLayer((TiledMapTileLayer)mapLayers.get(0)); // Floor
+    renderer.renderTileLayer((TiledMapTileLayer)mapLayers.get(1)); // North
+
     // TODO(baptr): y-sort characters for rendering.
-    monster.render(batch);
-    player.render(batch);
-    renderer.renderTileLayer((TiledMapTileLayer)mapLayers.get(3));
+    for (Entity e : entities.values()) {
+      e.render(batch);
+    }
+
+    renderer.renderTileLayer((TiledMapTileLayer)mapLayers.get(3)); // South
     batch.end();
 
     hudBatch.begin();
@@ -167,5 +188,21 @@ public class Roguish extends ApplicationAdapter {
       player.debugBounds(sh);
       sh.end();
     }
+  }
+
+  private int nextEntityId() { // TOOD(baptr): Synchronized
+    return maxEntityId++;
+  }
+
+  public int addPlayer(String name) {
+    return addPlayer(name, nextEntityId());
+  }
+
+  public int addPlayer(String name, int id) {
+    RemotePlayer rp = new RemotePlayer(id, 2, 8);
+    players.put(rp.id, rp);
+    entities.put(rp.id, rp);
+    System.out.printf("Welcome %s!\n", name);
+    return id;
   }
 }

@@ -1,10 +1,10 @@
 package net.baptr.roguish;
 
 public class Player extends Entity {
-  private static final float SPEED = 3;
+  protected static final float SPEED = 3;
 
-  public Player(int x, int y) {
-    super();
+  public Player(int id, int x, int y) {
+    super(id);
     loadSprite("lady48.png");
     pos.set(x, y);
   }

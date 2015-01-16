@@ -1,7 +1,5 @@
 package net.baptr.roguish;
 
-import java.util.List;
-
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.EndPoint;
 
@@ -13,8 +11,10 @@ public class Network {
     kryo.register(Join.class);
     kryo.register(Part.class);
     kryo.register(Player.class);
+    kryo.register(Player[].class);
     kryo.register(InputVector.class);
     kryo.register(Entity.class);
+    kryo.register(Entity[].class);
     kryo.register(FullSync.class);
   }
 
@@ -72,8 +72,8 @@ public class Network {
   // Server -> Clients.
   public static class FullSync {
     public int tick;
-    public List<Player> players;
-    public List<Entity> entities;
+    public Player[] players;
+    public Entity[] entities;
     // TODO(baptr): Map info
   }
 }

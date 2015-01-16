@@ -6,7 +6,8 @@ public class Monster extends Entity {
 
   private int heading;
 
-  public Monster() {
+  public Monster(int id) {
+    super(id);
     loadSprite("skeleton.png");
     pos.set(3, 9);
   }
