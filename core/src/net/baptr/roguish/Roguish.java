@@ -93,7 +93,6 @@ public class Roguish extends ApplicationAdapter {
     viewport = new FitViewport(12, 10, camera);
 
     inputController = new InputController();
-    player = new Player(nextEntityId(), 2, 8);
     Gdx.input.setInputProcessor(new InputMultiplexer(inputController,
         new PlayerInputHandler()));
 
@@ -103,11 +102,10 @@ public class Roguish extends ApplicationAdapter {
     font = new BitmapFont();
     sh = new ShapeRenderer();
 
-    addEntity(player);
     addEntity(monster);
   }
 
-  private void addEntity(Entity e) {
+  protected void addEntity(Entity e) {
     entities.put(e.id, e);
   }
 
@@ -133,8 +131,7 @@ public class Roguish extends ApplicationAdapter {
   }
 
   private void update(float delta) {
-    player.update(delta);
-    monster.update(delta);
+    // TODO(baptr): Do local update prediction.
     if (client != null) {
       client.update(this, delta);
     }
@@ -143,9 +140,9 @@ public class Roguish extends ApplicationAdapter {
     }
   }
 
-  public void updateRemote(float delta) {
-    for (RemotePlayer p : players.values()) {
-      p.update(delta);
+  public void updateEntities(float delta) {
+    for (Entity e : entities.values()) {
+      e.update(delta);
     }
   }
 
@@ -162,7 +159,11 @@ public class Roguish extends ApplicationAdapter {
 
     Gdx.gl.glClearColor(BGColor.r, BGColor.g, BGColor.b, BGColor.a);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-    camera.position.set(player.pos, 0);
+    if (player != null) {
+      camera.position.set(player.pos, 0);
+    } else {
+      camera.position.set(2, 8, 0);
+    }
     camera.update();
     renderer.setView(camera);
 

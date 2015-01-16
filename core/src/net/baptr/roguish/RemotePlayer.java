@@ -10,10 +10,8 @@ public class RemotePlayer extends Player {
   }
 
   @Override
-  public void update(float delta) {
+  protected void updateVel() {
     vel.set(iv);
     vel.nor().scl(SPEED);
-    super.update(delta);
   }
-
 }

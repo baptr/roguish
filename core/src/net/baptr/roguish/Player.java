@@ -9,14 +9,14 @@ public class Player extends Entity {
     pos.set(x, y);
   }
 
-  private void updateVel() {
+  protected void updateVel() {
+    PlayerInputHandler.update();
     vel.set(PlayerInputHandler.iv);
     vel.nor().scl(SPEED);
   }
 
   @Override
   public void update(float delta) {
-    PlayerInputHandler.update();
     updateVel();
     super.update(delta);
   }

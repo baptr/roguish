@@ -162,7 +162,7 @@ public class NetworkServer extends Listener {
       }
       // Update positions/run AI
       /* Currently game.update calls server.update. Need to break that loop */
-      game.updateRemote(simNow);
+      game.updateEntities(simNow);
 
       // Send syncs if necessary
       syncState(game);

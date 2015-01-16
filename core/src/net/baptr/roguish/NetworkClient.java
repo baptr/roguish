@@ -10,6 +10,7 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
 public class NetworkClient extends Listener {
+  private static final boolean debug = false;
   Client client;
   int id = -1;
   Queue<Network.FullSync> syncs = new LinkedList<Network.FullSync>();
@@ -59,7 +60,9 @@ public class NetworkClient extends Listener {
     }
     if (o instanceof Network.FullSync) {
       Network.FullSync sync = (Network.FullSync)o;
-      System.out.printf("Received tick %d full sync\n", sync.tick);
+      if (debug) {
+        System.out.printf("Received tick %d full sync\n", sync.tick);
+      }
       synchronized (syncs) {
         syncs.add(sync);
       }
@@ -95,10 +98,12 @@ public class NetworkClient extends Listener {
           continue;
         }
         for (Network.Player np : s.players) {
-          if (np.id == id) { // me
-            continue;
-          }
-          if (!game.players.containsKey(np.id)) {
+          if (np.id == id) {
+            if (game.player == null) {
+              game.player = new Player(np.id, 2, 8);
+              game.addEntity(game.player);
+            }
+          } else if (!game.players.containsKey(np.id)) {
             game.addPlayer(np.name, np.id);
           }
         }
@@ -121,6 +126,9 @@ public class NetworkClient extends Listener {
     sendIV(game.viewTick, PlayerInputHandler.iv); // TODO(baptr): simTick?
 
     procSync(game);
+
+    // TODO(baptr): Prevent duplicate updates on self-hosted clients.
+    game.updateEntities(delta);
     // Increment viewTick if necessary
     // Interpolate state + ivs if necessary
     // Update game state
