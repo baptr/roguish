@@ -23,20 +23,14 @@ public class NetworkClient extends Listener {
     client.addListener(this);
   }
 
-  public boolean connect(String name) {
-    try {
-      client.connect(100, "localhost", Network.PORT, Network.PORT);
-    } catch (IOException e) {
-      System.out.println("Unable to connect" + e);
-      return false;
-    }
+  public void connect(String name) throws IOException {
+    client.connect(1000, "localhost", Network.PORT, Network.PORT);
     Network.Join j = new Network.Join();
     j.user = name;
     j.version = "0";
     client.sendTCP(j);
 
     client.updateReturnTripTime();
-    return true;
   }
 
   @Override
@@ -127,8 +121,9 @@ public class NetworkClient extends Listener {
 
     procSync(game);
 
-    // TODO(baptr): Prevent duplicate updates on self-hosted clients.
-    game.updateEntities(delta);
+    if (game.server == null) { // Prevent duplicate updates if self-hosted.
+      game.updateEntities(delta);
+    }
     // Increment viewTick if necessary
     // Interpolate state + ivs if necessary
     // Update game state

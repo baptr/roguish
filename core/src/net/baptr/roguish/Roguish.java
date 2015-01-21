@@ -4,13 +4,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -25,7 +22,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-public class Roguish extends ApplicationAdapter {
+public class Roguish extends InputAdapter {
   SpriteBatch batch, hudBatch;
   Texture img;
   TiledMap map;
@@ -38,37 +35,61 @@ public class Roguish extends ApplicationAdapter {
   NetworkServer server;
   NetworkClient client;
 
-  class InputController extends InputAdapter {
-    @Override
-    public boolean keyDown(int keyCode) {
-      if (keyCode == Keys.ESCAPE) {
-        Gdx.app.exit();
-        return true;
-      }
-      if (keyCode == Keys.F1) {
-        debugBounds = !debugBounds;
-        return true;
-      }
-      if (keyCode == Keys.S) {
-        try {
-          server = new NetworkServer();
-          System.out.println("Server started");
-        } catch (IOException e) {
-          System.out.println("Failed to start server" + e);
-        }
-        return true;
-      }
-      if (keyCode == Keys.C) {
-        client = new NetworkClient();
-        client.connect("me");
-        System.out.println("Connected");
-        return true;
-      }
-      return false;
-    }
+  String playerName = "me";
+
+  public void setName(String name) {
+    playerName = name;
   }
 
-  InputController inputController;
+  public void startServer() throws IOException {
+    if (client != null) {
+      System.out.println("Not starting server, already a client");
+      return;
+    }
+    server = new NetworkServer();
+    System.out.println("Server started");
+  }
+
+  public void connect(String server) throws IOException {
+    if (client != null && client.client.isConnected()) {
+      System.out.println("Already connected!");
+      return;
+    }
+    client = new NetworkClient();
+    client.connect(playerName);
+    System.out.println("Connected");
+  }
+
+  // InputAdapter
+  @Override
+  public boolean keyDown(int keyCode) {
+    if (keyCode == Keys.ESCAPE) {
+      Gdx.app.exit();
+      return true;
+    }
+    if (keyCode == Keys.F1) {
+      debugBounds = !debugBounds;
+      return true;
+    }
+    if (keyCode == Keys.S) {
+      try {
+        startServer();
+      } catch (IOException e) {
+        System.out.println("Failed to start server" + e);
+      }
+      return true;
+    }
+    if (keyCode == Keys.C) {
+      try {
+        connect("localhost");
+      } catch (IOException e) {
+        System.out.println("Failed to connect:" + e);
+      }
+      return true;
+    }
+    return false;
+  }
+
   private Monster monster;
   private ShapeRenderer sh;
   private boolean debugBounds;
@@ -79,9 +100,9 @@ public class Roguish extends ApplicationAdapter {
 
   public static final float tickRate = 0.050f; // 50ms
   public static final int simOffset = 2; // viewTick + simOffset = simTick
+  public static final String LOG = Roguish.class.getSimpleName();
 
-  @Override
-  public void create() {
+  public Roguish() {
     batch = new SpriteBatch();
     hudBatch = new SpriteBatch();
     map = new TmxMapLoader().load("goblin_cave_test.tmx");
@@ -91,10 +112,6 @@ public class Roguish extends ApplicationAdapter {
     camera = new OrthographicCamera();
     camera.position.set(4, 9, 0);
     viewport = new FitViewport(12, 10, camera);
-
-    inputController = new InputController();
-    Gdx.input.setInputProcessor(new InputMultiplexer(inputController,
-        new PlayerInputHandler()));
 
     monster = new Monster(nextEntityId());
     Entity.colMap = colMap();
@@ -123,14 +140,11 @@ public class Roguish extends ApplicationAdapter {
     return map;
   }
 
-  @Override
   public void resize(int w, int h) {
-    PlayerInputHandler.centerX = Gdx.graphics.getWidth() / 2;
-    PlayerInputHandler.centerY = Gdx.graphics.getHeight() / 2;
     viewport.update(w, h);
   }
 
-  private void update(float delta) {
+  public void update(float delta) {
     // TODO(baptr): Do local update prediction.
     if (client != null) {
       client.update(this, delta);
@@ -152,13 +166,11 @@ public class Roguish extends ApplicationAdapter {
       new HashMap<Integer, RemotePlayer>();
   public Map<Integer, Entity> entities = new HashMap<Integer, Entity>();
 
-  @Override
-  public void render() {
-    float delta = Gdx.graphics.getDeltaTime();
-    update(delta);
-
-    Gdx.gl.glClearColor(BGColor.r, BGColor.g, BGColor.b, BGColor.a);
-    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+  public void render(float delta) {
+    /*
+     * Gdx.gl.glClearColor(BGColor.r, BGColor.g, BGColor.b, BGColor.a);
+     * Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+     */
     if (player != null) {
       camera.position.set(player.pos, 0);
     } else {

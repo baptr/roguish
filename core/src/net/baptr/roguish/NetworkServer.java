@@ -16,6 +16,7 @@ public class NetworkServer extends Listener {
   // TODO(baptr): Queue?
   List<Network.InputVector> ivs = new ArrayList<Network.InputVector>();
   List<PlayerConnection> pendingJoins = new ArrayList<PlayerConnection>();
+  List<PlayerConnection> pendingParts = new ArrayList<PlayerConnection>();
   private float simAccum;
 
   public NetworkServer() throws IOException {
@@ -35,6 +36,7 @@ public class NetworkServer extends Listener {
   static class PlayerConnection extends Connection {
     String version;
     Network.Player player;
+    // TODO(baptr): Track/display latency.
   }
 
   @Override
@@ -51,8 +53,6 @@ public class NetworkServer extends Listener {
       pc.player.name = j.user;
       pc.player.id = -1;
       System.out.println("Connected: " + pc.player.name);
-
-      conns.add(pc);
 
       // Queue a full sync.
       pendingJoins.add(pc);
@@ -77,15 +77,12 @@ public class NetworkServer extends Listener {
   @Override
   public void disconnected(Connection c) {
     PlayerConnection pc = (PlayerConnection)c;
-    System.out.println("Disconnected: " + pc.player.name);
-    conns.remove(pc);
+    if (pc.player != null) {
+      System.out.println("Disconnected: " + pc.player.name);
 
-    // Announce to other connected players.
-    Network.Part d = new Network.Part();
-    d.player = pc.player;
-    for (PlayerConnection oc : conns) {
-      oc.sendTCP(d);
+      pendingParts.add(pc);
     }
+    conns.remove(pc);
   }
 
   private void syncState(Roguish game) {
@@ -114,9 +111,21 @@ public class NetworkServer extends Listener {
   }
 
   public void update(Roguish game, float delta) {
+    // Announce departed players
+    for (PlayerConnection pc : pendingParts) {
+      Network.Part d = new Network.Part();
+      d.player = pc.player;
+      server.sendToAllTCP(d);
+      game.entities.remove(pc.player.id);
+      game.players.remove(pc.player.id);
+    }
+    pendingParts.clear();
+
     // Add any new players
     for (PlayerConnection pc : pendingJoins) {
       pc.player.id = game.addPlayer(pc.player.name);
+
+      conns.add(pc);
 
       // Announce join to all connected players.
       server.sendToAllTCP(pc.player);
@@ -124,7 +133,6 @@ public class NetworkServer extends Listener {
     pendingJoins.clear();
 
     // Process IVs
-    // TODO(baptr): Lock
     synchronized (ivs) {
       for (Network.InputVector iv : ivs) {
         if (debug) {
@@ -161,7 +169,6 @@ public class NetworkServer extends Listener {
             simAccum, simNow);
       }
       // Update positions/run AI
-      /* Currently game.update calls server.update. Need to break that loop */
       game.updateEntities(simNow);
 
       // Send syncs if necessary
