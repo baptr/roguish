@@ -3,6 +3,7 @@ package net.baptr.roguish.screen;
 import net.baptr.roguish.Roguish;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
@@ -10,25 +11,18 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
-public abstract class AbstractScreen implements Screen {
-
+public abstract class AbstractScreen extends InputAdapter implements Screen {
   protected final Manager manager;
-  // protected final SpriteBatch batch;
   protected final Stage stage;
   protected final InputMultiplexer input;
-  // protected final OrthographicCamera camera;
-  // protected final FitViewport viewport;
   protected final Preferences preferences;
 
   protected final Color bgColor;
 
   public AbstractScreen(Manager manager) {
     this.manager = manager;
-    // camera = new OrthographicCamera();
-    // viewport = new FitViewport(12, 10, camera);
-    // batch = new SpriteBatch();
     stage = new Stage();
-    input = new InputMultiplexer(stage);
+    input = new InputMultiplexer(stage, this);
     preferences = Gdx.app.getPreferences(Roguish.LOG);
     bgColor = new Color(0, 0, 0, 1);
   }
@@ -50,8 +44,7 @@ public abstract class AbstractScreen implements Screen {
 
   @Override
   public void resize(int width, int height) {
-    // stage.getViewport().update(width, height);
-    // viewport.update(width, height);
+    stage.getViewport().update(width, height);
   }
 
   @Override
@@ -88,6 +81,5 @@ public abstract class AbstractScreen implements Screen {
 
     // dispose the collaborators
     stage.dispose();
-    // batch.dispose();
   }
 }

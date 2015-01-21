@@ -37,7 +37,7 @@ public class Entity {
 
   float stateTime;
   Vector2 vel;
-  Vector2 pos;
+  public Vector2 pos;
   Direction dir;
   Sprite sprite;
   int id;
