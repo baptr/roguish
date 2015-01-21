@@ -1,46 +1,27 @@
 package net.baptr.roguish;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 public class Entity {
-
-  private static final int CAST_COLS = 7;
-  private static final int POKE_COLS = 8;
-  private static final int WALK_COLS = 9;
-  private static final int FLIP_COLS = 6;
-  private static final int FIRE_COLS = 13;
-  private static final int DEAD_COLS = 9;
-
-  private static final int DIRECTIONS = 4;
-  private static final int WALK_OFFSET = 2;
-
   private static final float BOUNDS_Y_OFFSET = -0.35f;
 
   public enum Direction {
     UP, LEFT, DOWN, RIGHT
   };
 
-  Animation[] walkAnimations;
-  Texture walkSheet;
-  TextureRegion[][] walkFrames;
-  TextureRegion currentFrame;
+  public Vector2 pos;
+  Vector2 vel;
+  Direction dir;
+  int id;
+
+  Sprite sprite;
+  float stateTime;
+
   Rectangle bounds; // character bounding box
   Rectangle tmpRect; // used for bounds checks
-
-  float stateTime;
-  Vector2 vel;
-  public Vector2 pos;
-  Direction dir;
-  Sprite sprite;
-  int id;
 
   static boolean[][] colMap;
 
@@ -52,22 +33,6 @@ public class Entity {
     dir = Direction.DOWN;
     this.id = id;
   };
-
-  protected void loadSprite(String filename) {
-    walkSheet = new Texture(Gdx.files.internal(filename));
-    TextureRegion[][] tmp = TextureRegion.split(walkSheet, 48, 48);
-    walkFrames = new TextureRegion[DIRECTIONS][WALK_COLS];
-    walkAnimations = new Animation[DIRECTIONS];
-    for (int i = 0; i < DIRECTIONS; i++) {
-      for (int j = 0; j < WALK_COLS; j++) {
-        walkFrames[i][j] = tmp[WALK_OFFSET * 4 + i][j];
-      }
-      walkAnimations[i] = new Animation(0.125f, walkFrames[i]);
-    }
-    sprite = new Sprite(walkFrames[0][0]);
-    sprite.setScale(1 / 32f);
-    sprite.setOriginCenter();
-  }
 
   private float collide(float dx, float dy) {
     bounds.setCenter(pos.x + dx, pos.y + dy + BOUNDS_Y_OFFSET);
@@ -150,10 +115,9 @@ public class Entity {
   }
 
   public void render(SpriteBatch batch) {
-    currentFrame = walkAnimations[dir.ordinal()].getKeyFrame(stateTime, true);
 
     sprite.setCenter(pos.x, pos.y);
-    sprite.setRegion(currentFrame);
+    sprite.setRegion(sprite.getFrame(dir.ordinal(), stateTime));
     sprite.draw(batch);
   }
 

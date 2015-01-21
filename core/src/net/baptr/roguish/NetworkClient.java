@@ -14,6 +14,7 @@ public class NetworkClient extends Listener {
   Client client;
   int id = -1;
   Queue<Network.FullSync> syncs = new LinkedList<Network.FullSync>();
+  private float viewAccum;
 
   public NetworkClient() {
     client = new Client();
@@ -72,10 +73,11 @@ public class NetworkClient extends Listener {
     // TODO(baptr): Pause/reconnect/resync/exit
   }
 
-  void sendIV(int tick, Vector2 v) {
+  void sendIV(int tick, float offset, Vector2 v) {
     Network.InputVector iv = new Network.InputVector();
     iv.playerId = id;
     iv.tick = tick;
+    iv.offset = offset;
     iv.x = v.x;
     iv.y = v.y;
     client.sendTCP(iv); // TODO(baptr): UDP for just movement?
@@ -117,14 +119,24 @@ public class NetworkClient extends Listener {
   }
 
   public void update(Roguish game, float delta) {
-    sendIV(game.viewTick, PlayerInputHandler.iv); // TODO(baptr): simTick?
+    // Increment viewTick if necessary
+    if (delta > Roguish.tickRate) {
+      System.out.println("Lost view tick!");
+    }
+    viewAccum += delta;
+    while (viewAccum >= Roguish.tickRate) {
+      viewAccum -= Roguish.tickRate;
+      game.viewTick++;
+    }
+
+    // TODO(baptr): Queue up iv changes in real time with precise offsets.
+    sendIV(game.viewTick, viewAccum, PlayerInputHandler.iv);
 
     procSync(game);
 
     if (game.server == null) { // Prevent duplicate updates if self-hosted.
       game.updateEntities(delta);
     }
-    // Increment viewTick if necessary
     // Interpolate state + ivs if necessary
     // Update game state
   }

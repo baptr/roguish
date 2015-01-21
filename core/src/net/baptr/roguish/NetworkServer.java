@@ -19,6 +19,8 @@ public class NetworkServer extends Listener {
   List<PlayerConnection> pendingParts = new ArrayList<PlayerConnection>();
   private float simAccum;
 
+  private long fakeLatency;
+
   public NetworkServer() throws IOException {
     server = new Server() {
       protected Connection newConnection() {
@@ -111,6 +113,13 @@ public class NetworkServer extends Listener {
   }
 
   public void update(Roguish game, float delta) {
+    if (fakeLatency > 0) {
+      try {
+        Thread.sleep(fakeLatency);
+      } catch (InterruptedException e) {
+      }
+    }
+
     // Announce departed players
     for (PlayerConnection pc : pendingParts) {
       Network.Part d = new Network.Part();

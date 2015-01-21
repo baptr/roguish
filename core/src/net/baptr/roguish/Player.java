@@ -5,7 +5,7 @@ public class Player extends Entity {
 
   public Player(int id, int x, int y) {
     super(id);
-    loadSprite("lady48.png");
+    sprite = Sprite.load("lady48.png");
     pos.set(x, y);
   }
 

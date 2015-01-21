@@ -43,7 +43,10 @@ public class Network {
   // Client -> Server.
   public static class InputVector {
     public int playerId; // Populated by server if missing.
+
+    // TODO(baptr): Pack tick and offset into a single long?
     public int tick;
+    public float offset;
 
     // Normalized input vector components
     public float x;
