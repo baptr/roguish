@@ -19,7 +19,7 @@ public class NetworkServer extends Listener {
   List<PlayerConnection> pendingParts = new ArrayList<PlayerConnection>();
   private float simAccum;
 
-  private long fakeLatency;
+  private long fakeLatency = 0;
 
   public NetworkServer() throws IOException {
     server = new Server() {
@@ -62,7 +62,6 @@ public class NetworkServer extends Listener {
 
     if (o instanceof Network.InputVector) {
       Network.InputVector iv = (Network.InputVector)o;
-      // System.out.println("Updated (" + iv.x + ", " + iv.y + ")");
       if (iv.playerId != pc.player.id) {
         System.out.printf("%s is a liar! (%d != %d) in InputVector\n",
             pc.player.name, iv.playerId, pc.player.id);
@@ -81,7 +80,6 @@ public class NetworkServer extends Listener {
     PlayerConnection pc = (PlayerConnection)c;
     if (pc.player != null) {
       System.out.println("Disconnected: " + pc.player.name);
-
       pendingParts.add(pc);
     }
     conns.remove(pc);
@@ -120,6 +118,7 @@ public class NetworkServer extends Listener {
       }
     }
 
+    // TODO(baptr): Join/Part should both be synchronized as well.
     // Announce departed players
     for (PlayerConnection pc : pendingParts) {
       Network.Part d = new Network.Part();
@@ -178,7 +177,7 @@ public class NetworkServer extends Listener {
             simAccum, simNow);
       }
       // Update positions/run AI
-      game.updateEntities(simNow);
+      game.updateEntities(simNow, true);
 
       // Send syncs if necessary
       syncState(game);

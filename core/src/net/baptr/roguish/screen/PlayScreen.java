@@ -87,6 +87,7 @@ public class PlayScreen extends AbstractScreen {
   @Override
   public void render(float delta) {
     game.update(delta);
+
     Gdx.gl.glClearColor(BGColor.r, BGColor.g, BGColor.b, BGColor.a);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 

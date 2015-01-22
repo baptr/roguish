@@ -74,6 +74,10 @@ public class Entity {
     return off;
   }
 
+  protected void updateVel() {
+    // To be overridden by subclasses
+  }
+
   protected void updatePos(float d) {
     float dx = vel.x * d;
     float dy = vel.y * d;
@@ -105,7 +109,10 @@ public class Entity {
     return colMap[(int)y][(int)x];
   }
 
-  public void update(float delta) {
+  public void update(float delta, boolean auth) {
+    if (auth) {
+      updateVel();
+    }
     updatePos(delta);
     if (vel.isZero()) {
       stateTime = 0;

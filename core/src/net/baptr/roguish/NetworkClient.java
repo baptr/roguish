@@ -115,6 +115,7 @@ public class NetworkClient extends Listener {
         // Always jump sim state to the FullSync state, and view state to
         // fullsync-simOffset?
       }
+      syncs.clear();
     }
   }
 
@@ -135,7 +136,7 @@ public class NetworkClient extends Listener {
     procSync(game);
 
     if (game.server == null) { // Prevent duplicate updates if self-hosted.
-      game.updateEntities(delta);
+      game.updateEntities(delta, false);
     }
     // Interpolate state + ivs if necessary
     // Update game state

@@ -89,13 +89,17 @@ public class Roguish extends InputAdapter {
     }
   }
 
-  public void updateEntities(float delta) {
+  public void updateEntities(float delta, boolean auth) {
     for (Entity e : entities.values()) {
-      e.update(delta);
+      if (e == player) {
+        e.update(delta, true); // Always authoritative for the local player.
+      } else {
+        e.update(delta, auth);
+      }
     }
   }
 
-  private int nextEntityId() { // TOOD(baptr): Synchronized
+  private int nextEntityId() { // TODO(baptr): Synchronized
     return maxEntityId++;
   }
 

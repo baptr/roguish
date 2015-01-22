@@ -12,7 +12,8 @@ public class Monster extends Entity {
     pos.set(3, 9);
   }
 
-  private void updateVel() {
+  @Override
+  protected void updateVel() {
     int d = MathUtils.round(MathUtils.randomTriangular(5)) / 5;
     heading = (heading + d + 4) % 4;
     vel.setZero();
@@ -30,11 +31,5 @@ public class Monster extends Entity {
         vel.x = 1;
         break;
     }
-  }
-
-  @Override
-  public void update(float delta) {
-    updateVel();
-    super.update(delta);
   }
 }

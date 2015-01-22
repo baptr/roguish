@@ -6,7 +6,7 @@ Work in progress!
 Running
 -------
 Try it with:
-  `gradle desktop:run`
+  `gradlew desktop:run`
   
 Controls:
   * Arrow keys to move
